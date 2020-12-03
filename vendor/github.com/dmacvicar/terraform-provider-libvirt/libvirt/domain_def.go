@@ -17,7 +17,7 @@ func getXMLDomainDefFromLibvirt(domain *libvirt.Domain) (libvirtxml.Domain, erro
 		return libvirtxml.Domain{}, fmt.Errorf("Error retrieving libvirt domain XML description: %s", err)
 	}
 
-	domainDef := newDomainDef()
+	domainDef := newDomainDef("x86_64")
 	err = xml.Unmarshal([]byte(domainXMLDesc), &domainDef)
 	if err != nil {
 		return libvirtxml.Domain{}, fmt.Errorf("Error reading libvirt domain XML description: %s", err)
@@ -36,7 +36,7 @@ func newFilesystemDef() libvirtxml.DomainFilesystem {
 
 // Creates a domain definition with the defaults
 // the provider uses
-func newDomainDef() libvirtxml.Domain {
+func newDomainDef(arch string) libvirtxml.Domain {
 	domainDef := libvirtxml.Domain{
 		OS: &libvirtxml.DomainOS{
 			Type: &libvirtxml.DomainOSType{
@@ -98,20 +98,27 @@ func newDomainDef() libvirtxml.Domain {
 		},
 	}
 
+	if arch == "aarch64" {
+		// for aarch64 speciffying this will automatically select the firmware and NVRAM file
+		// reference: https://libvirt.org/formatdomain.html#bios-bootloader
+		domainDef.OS.Firmware = "efi"
+	}
+
 	return domainDef
 }
 
 func newDomainDefForConnection(virConn *libvirt.Connect, rd *schema.ResourceData) (libvirtxml.Domain, error) {
-	d := newDomainDef()
+	hostArch, err := getHostArchitecture(virConn)
+	if err != nil {
+		return libvirtxml.Domain{}, err
+	}
+
+	d := newDomainDef(hostArch)
 
 	if arch, ok := rd.GetOk("arch"); ok {
 		d.OS.Type.Arch = arch.(string)
 	} else {
-		arch, err := getHostArchitecture(virConn)
-		if err != nil {
-			return d, err
-		}
-		d.OS.Type.Arch = arch
+		d.OS.Type.Arch = hostArch
 	}
 
 	caps, err := getHostCapabilities(virConn)

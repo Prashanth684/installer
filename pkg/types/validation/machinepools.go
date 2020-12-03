@@ -40,6 +40,7 @@ var (
 		types.ArchitectureAMD64:   true,
 		types.ArchitectureS390X:   true,
 		types.ArchitecturePPC64LE: true,
+		types.ArchitectureARM64:   true,
 	}
 
 	validArchitectureValues = func() []string {

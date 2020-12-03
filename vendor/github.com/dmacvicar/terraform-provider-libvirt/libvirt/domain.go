@@ -305,8 +305,8 @@ func setVideo(d *schema.ResourceData, domainDef *libvirtxml.Domain) error {
 }
 
 func setGraphics(d *schema.ResourceData, domainDef *libvirtxml.Domain, arch string) error {
-	// For s390x, ppc64 and ppc64le spice is not supported
-	if arch == "s390x" || strings.HasPrefix(arch, "ppc64") {
+	// SPICE is mainly supported only on x86_64
+	if arch != "x86_64" {
 		domainDef.Devices.Graphics = nil
 		return nil
 	}
