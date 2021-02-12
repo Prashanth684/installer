@@ -949,6 +949,15 @@ func TestValidateInstallConfig(t *testing.T) {
 			expectedError: `^compute\[0\].architecture: Invalid value: "ppc64le": heteregeneous multi-arch is not supported; compute pool architecture must match control plane$`,
 		},
 		{
+			name: "cluster is not heteregenous",
+			installConfig: func() *types.InstallConfig {
+				c := validInstallConfig()
+				c.Compute[0].Architecture = types.ArchitectureARM64
+				return c
+			}(),
+			expectedError: `^compute\[0\].architecture: Invalid value: "arm64": heteregeneous multi-arch is not supported; compute pool architecture must match control plane$`,
+		},
+		{
 			name: "valid cloud credentials mode",
 			installConfig: func() *types.InstallConfig {
 				c := validInstallConfig()
