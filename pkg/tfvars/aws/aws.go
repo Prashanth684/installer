@@ -53,6 +53,8 @@ type TFVarsSources struct {
 	IgnitionBucket, IgnitionPresignedURL string
 
 	AdditionalTrustBundle string
+
+	Architecture types.Architecture
 }
 
 // TFVars generates AWS-specific Terraform variables launching the cluster.
@@ -106,7 +108,7 @@ func TFVars(sources TFVarsSources) ([]byte, error) {
 		return nil, errors.New("EBS IOPS must be configured for the io1 root volume")
 	}
 
-	instanceClass := defaults.InstanceClass(masterConfig.Placement.Region)
+	instanceClass := defaults.InstanceClass(masterConfig.Placement.Region, sources.Architecture)
 
 	cfg := &config{
 		CustomEndpoints:         endpoints,

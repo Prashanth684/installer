@@ -152,8 +152,8 @@ func defaultKubevirtMachinePoolPlatform() kubevirttypes.MachinePool {
 	}
 }
 
-func awsDefaultWorkerMachineTypes(region string) []string {
-	classes := awsdefaults.InstanceClasses(region)
+func awsDefaultWorkerMachineTypes(region string, arch types.Architecture) []string {
+	classes := awsdefaults.InstanceClasses(region, arch)
 	types := make([]string, len(classes))
 	for i, c := range classes {
 		types[i] = fmt.Sprintf("%s.large", c)
@@ -260,10 +260,10 @@ func (w *Worker) Generate(dependencies asset.Parents) error {
 				}
 			}
 			if mpool.InstanceType == "" {
-				mpool.InstanceType, err = aws.PreferredInstanceType(ctx, installConfig.AWS, awsDefaultWorkerMachineTypes(installConfig.Config.Platform.AWS.Region), mpool.Zones)
+				mpool.InstanceType, mpool.Zones, err = aws.PreferredInstanceType(ctx, installConfig.AWS, awsDefaultWorkerMachineTypes(installConfig.Config.Platform.AWS.Region, installConfig.Config.ControlPlane.Architecture), mpool.Zones)
 				if err != nil {
 					logrus.Warn(errors.Wrap(err, "failed to find default instance type"))
-					mpool.InstanceType = awsDefaultWorkerMachineTypes(installConfig.Config.Platform.AWS.Region)[0]
+					mpool.InstanceType = awsDefaultWorkerMachineTypes(installConfig.Config.Platform.AWS.Region, installConfig.Config.ControlPlane.Architecture)[0]
 				}
 			}
 			pool.Platform.AWS = &mpool
