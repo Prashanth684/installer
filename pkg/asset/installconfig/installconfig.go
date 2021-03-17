@@ -47,6 +47,7 @@ func (a *InstallConfig) Dependencies() []asset.Asset {
 		&networking{},
 		&pullSecret{},
 		&platform{},
+		&architecture{},
 	}
 }
 
@@ -58,6 +59,7 @@ func (a *InstallConfig) Generate(parents asset.Parents) error {
 	networking := &networking{}
 	pullSecret := &pullSecret{}
 	platform := &platform{}
+	architecture := &architecture{}
 	parents.Get(
 		sshPublicKey,
 		baseDomain,
@@ -65,6 +67,7 @@ func (a *InstallConfig) Generate(parents asset.Parents) error {
 		networking,
 		pullSecret,
 		platform,
+		architecture,
 	)
 
 	a.Config = &types.InstallConfig{
@@ -79,6 +82,15 @@ func (a *InstallConfig) Generate(parents asset.Parents) error {
 		PullSecret: pullSecret.PullSecret,
 		Networking: &types.Networking{
 			MachineNetwork: networking.machineNetwork,
+		},
+		ControlPlane: &types.MachinePool{
+			Architecture: types.Architecture(architecture.Architecture),
+		},
+		Compute: []types.MachinePool{
+			types.MachinePool{
+				Name:         "worker",
+				Architecture: types.Architecture(architecture.Architecture),
+			},
 		},
 	}
 

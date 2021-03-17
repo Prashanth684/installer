@@ -38,6 +38,9 @@ const (
 	ArchitectureARM64 = "arm64"
 )
 
+var ArchitectureList = []Architecture{ArchitectureAMD64, ArchitectureARM64, ArchitecturePPC64LE, ArchitectureS390X}
+var ArchitectureListAWS = []Architecture{ArchitectureAMD64, ArchitectureARM64}
+
 // MachinePool is a pool of machines to be installed.
 type MachinePool struct {
 	// Name is the name of the machine pool.
