@@ -252,7 +252,7 @@ func (t *TerraformVariables) Generate(parents asset.Parents) error {
 		for i, m := range workers {
 			workerConfigs[i] = m.Spec.Template.Spec.ProviderSpec.Value.Object.(*machinev1beta1.AWSMachineProviderConfig)
 		}
-		osImage := strings.SplitN(string(*rhcosImage), ",", 2)
+		osImage := strings.SplitN(string(*rhcosImage.ControlPlaneImage), ",", 2)
 		osImageID := osImage[0]
 		osImageRegion := installConfig.Config.AWS.Region
 		if len(osImage) == 2 {
@@ -357,7 +357,7 @@ func (t *TerraformVariables) Generate(parents asset.Parents) error {
 				BaseDomainResourceGroupName:     installConfig.Config.Azure.BaseDomainResourceGroupName,
 				MasterConfigs:                   masterConfigs,
 				WorkerConfigs:                   workerConfigs,
-				ImageURL:                        string(*rhcosImage),
+				ImageURL:                        string(*rhcosImage.ControlPlaneImage),
 				PreexistingNetwork:              preexistingnetwork,
 				Publish:                         installConfig.Config.Publish,
 				OutboundType:                    installConfig.Config.Azure.OutboundType,
@@ -533,7 +533,7 @@ func (t *TerraformVariables) Generate(parents asset.Parents) error {
 			ibmcloudtfvars.TFVarsSources{
 				Auth:                 auth,
 				CISInstanceCRN:       crn,
-				ImageURL:             string(*rhcosImage),
+				ImageURL:             string(*rhcosImage.ControlPlaneImage),
 				MasterConfigs:        masterConfigs,
 				MasterDedicatedHosts: masterDedicatedHosts,
 				PublishStrategy:      installConfig.Config.Publish,
@@ -566,7 +566,7 @@ func (t *TerraformVariables) Generate(parents asset.Parents) error {
 		data, err = libvirttfvars.TFVars(
 			libvirttfvars.TFVarsSources{
 				MasterConfig:   masters[0].Spec.ProviderSpec.Value.Object.(*libvirtprovider.LibvirtMachineProviderConfig),
-				OsImage:        string(*rhcosImage),
+				OsImage:        string(*rhcosImage.ControlPlaneImage),
 				MachineCIDR:    &installConfig.Config.Networking.MachineNetwork[0].CIDR.IPNet,
 				Bridge:         installConfig.Config.Platform.Libvirt.Network.IfName,
 				MasterCount:    masterCount,
@@ -586,7 +586,7 @@ func (t *TerraformVariables) Generate(parents asset.Parents) error {
 			installConfig,
 			mastersAsset,
 			workersAsset,
-			string(*rhcosImage),
+			string(*rhcosImage.ControlPlaneImage),
 			clusterID,
 			bootstrapIgn,
 		)
@@ -617,7 +617,7 @@ func (t *TerraformVariables) Generate(parents asset.Parents) error {
 			installConfig.Config.Platform.BareMetal.ProvisioningMACAddress,
 			installConfig.Config.Platform.BareMetal.Hosts,
 			mastersAsset.HostFiles,
-			string(*rhcosImage),
+			string(*rhcosImage.ControlPlaneImage),
 			ironicCreds.Username,
 			ironicCreds.Password,
 			masterIgn,
@@ -674,7 +674,7 @@ func (t *TerraformVariables) Generate(parents asset.Parents) error {
 			installConfig.Config.Platform.Ovirt.StorageDomainID,
 			installConfig.Config.Platform.Ovirt.NetworkName,
 			installConfig.Config.Platform.Ovirt.VNICProfileID,
-			string(*rhcosImage),
+			string(*rhcosImage.ControlPlaneImage),
 			clusterID.InfraID,
 			masters[0].Spec.ProviderSpec.Value.Object.(*ovirtprovider.OvirtMachineProviderSpec),
 			installConfig.Config.Platform.Ovirt.AffinityGroups,
@@ -708,7 +708,7 @@ func (t *TerraformVariables) Generate(parents asset.Parents) error {
 			masterConfigs[i] = m.Spec.ProviderSpec.Value.Object.(*powervsprovider.PowerVSMachineProviderConfig)
 		}
 
-		osImage := strings.SplitN(string(*rhcosImage), "/", 2)
+		osImage := strings.SplitN(string(*rhcosImage.ControlPlaneImage), "/", 2)
 		data, err = powervstfvars.TFVars(
 			powervstfvars.TFVarsSources{
 				MasterConfigs:        masterConfigs,
@@ -774,7 +774,7 @@ func (t *TerraformVariables) Generate(parents asset.Parents) error {
 				Username:            installConfig.Config.VSphere.Username,
 				Password:            installConfig.Config.VSphere.Password,
 				Cluster:             installConfig.Config.VSphere.Cluster,
-				ImageURL:            string(*rhcosImage),
+				ImageURL:            string(*rhcosImage.ControlPlaneImage),
 				PreexistingFolder:   preexistingFolder,
 				DiskType:            installConfig.Config.Platform.VSphere.DiskType,
 				NetworkID:           networkID,
@@ -869,7 +869,7 @@ func (t *TerraformVariables) Generate(parents asset.Parents) error {
 			controlPlaneConfigs[i] = c.Spec.ProviderSpec.Value.Object.(*machinev1.NutanixMachineProviderConfig)
 		}
 
-		imgURI := string(*rhcosImage)
+		imgURI := string(*rhcosImage.ControlPlaneImage)
 		if installConfig.Config.Nutanix.ClusterOSImage != "" {
 			imgURI = installConfig.Config.Nutanix.ClusterOSImage
 		}

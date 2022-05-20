@@ -167,7 +167,7 @@ func (m *Master) Generate(dependencies asset.Parents) error {
 			return errors.Wrap(err, "failed to get VSwitchs map")
 		}
 		mpool := alibabacloudtypes.DefaultMasterMachinePoolPlatform()
-		mpool.ImageID = string(*rhcosImage)
+		mpool.ImageID = string(*rhcosImage.ControlPlaneImage)
 		mpool.Set(ic.Platform.AlibabaCloud.DefaultMachinePlatform)
 		mpool.Set(pool.Platform.AlibabaCloud)
 		if len(mpool.Zones) == 0 {
@@ -203,7 +203,7 @@ func (m *Master) Generate(dependencies asset.Parents) error {
 
 		mpool := defaultAWSMachinePoolPlatform()
 
-		osImage := strings.SplitN(string(*rhcosImage), ",", 2)
+		osImage := strings.SplitN(string(*rhcosImage.ControlPlaneImage), ",", 2)
 		osImageID := osImage[0]
 		if len(osImage) == 2 {
 			osImageID = "" // the AMI will be generated later on
@@ -269,7 +269,7 @@ func (m *Master) Generate(dependencies asset.Parents) error {
 			mpool.Zones = azs
 		}
 		pool.Platform.GCP = &mpool
-		machines, err = gcp.Machines(clusterID.InfraID, ic, &pool, string(*rhcosImage), "master", masterUserDataSecretName)
+		machines, err = gcp.Machines(clusterID.InfraID, ic, &pool, string(*rhcosImage.ControlPlaneImage), "master", masterUserDataSecretName)
 		if err != nil {
 			return errors.Wrap(err, "failed to create master machine objects")
 		}
@@ -307,7 +307,7 @@ func (m *Master) Generate(dependencies asset.Parents) error {
 		mpool.Set(pool.Platform.OpenStack)
 		pool.Platform.OpenStack = &mpool
 
-		imageName, _ := rhcosutils.GenerateOpenStackImageName(string(*rhcosImage), clusterID.InfraID)
+		imageName, _ := rhcosutils.GenerateOpenStackImageName(string(*rhcosImage.ControlPlaneImage), clusterID.InfraID)
 
 		machines, err = openstack.Machines(clusterID.InfraID, ic, &pool, imageName, "master", masterUserDataSecretName)
 		if err != nil {
@@ -355,7 +355,7 @@ func (m *Master) Generate(dependencies asset.Parents) error {
 			return err
 		}
 
-		machines, err = azure.Machines(clusterID.InfraID, ic, &pool, string(*rhcosImage), "master", masterUserDataSecretName, capabilities)
+		machines, err = azure.Machines(clusterID.InfraID, ic, &pool, string(*rhcosImage.ControlPlaneImage), "master", masterUserDataSecretName, capabilities)
 		if err != nil {
 			return errors.Wrap(err, "failed to create master machine objects")
 		}
@@ -404,7 +404,7 @@ func (m *Master) Generate(dependencies asset.Parents) error {
 		mpool.Set(pool.Platform.Ovirt)
 		pool.Platform.Ovirt = &mpool
 
-		imageName, _ := rhcosutils.GenerateOpenStackImageName(string(*rhcosImage), clusterID.InfraID)
+		imageName, _ := rhcosutils.GenerateOpenStackImageName(string(*rhcosImage.ControlPlaneImage), clusterID.InfraID)
 
 		machines, err = ovirt.Machines(clusterID.InfraID, ic, &pool, imageName, "master", masterUserDataSecretName)
 		if err != nil {

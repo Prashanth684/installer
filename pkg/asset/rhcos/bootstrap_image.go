@@ -75,7 +75,7 @@ func (i *BootstrapImage) Generate(p asset.Parents) error {
 		return fmt.Errorf("%s: No qemu build found", st.FormatPrefix(archName))
 	default:
 		// other platforms use the same image for all nodes
-		*i = BootstrapImage(string(*rhcosImage))
+		*i = BootstrapImage(string(*rhcosImage.ControlPlaneImage))
 		return nil
 	}
 }

@@ -32,7 +32,10 @@ import (
 // Image is location of RHCOS image.
 // This stores the location of the image based on the platform.
 // eg. on AWS this contains ami-id, on Livirt this can be the URI for QEMU image etc.
-type Image string
+type Image struct {
+	ControlPlaneImage *string
+	ComputeImage      []*string
+}
 
 var _ asset.Asset = (*Image)(nil)
 
@@ -52,26 +55,32 @@ func (i *Image) Dependencies() []asset.Asset {
 func (i *Image) Generate(p asset.Parents) error {
 	if oi, ok := os.LookupEnv("OPENSHIFT_INSTALL_OS_IMAGE_OVERRIDE"); ok && oi != "" {
 		logrus.Warn("Found override for OS Image. Please be warned, this is not advised")
-		*i = Image(oi)
+		i.ControlPlaneImage = &oi
+		i.ComputeImage = append(i.ComputeImage, &oi)
 		return nil
 	}
 
 	ic := &installconfig.InstallConfig{}
 	p.Get(ic)
 	config := ic.Config
-	osimage, err := osImage(config)
+	cpImage, err := osImage(config, arch.RpmArch(string(config.ControlPlane.Architecture)))
 	if err != nil {
 		return err
 	}
-	*i = Image(osimage)
+	i.ControlPlaneImage = &cpImage
+	for index := range config.Compute {
+		image, err := osImage(config, arch.RpmArch(string(config.Compute[index].Architecture)))
+		if err != nil {
+			return err
+		}
+		i.ComputeImage = append(i.ComputeImage, &image)
+	}
 	return nil
 }
 
-func osImage(config *types.InstallConfig) (string, error) {
+func osImage(config *types.InstallConfig, archName string) (string, error) {
 	ctx, cancel := context.WithTimeout(context.TODO(), 30*time.Second)
 	defer cancel()
-
-	archName := arch.RpmArch(string(config.ControlPlane.Architecture))
 
 	st, err := rhcos.FetchCoreOSBuild(ctx)
 	if err != nil {

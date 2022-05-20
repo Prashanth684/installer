@@ -234,7 +234,7 @@ func (w *Worker) Generate(dependencies asset.Parents) error {
 	machineSets := []runtime.Object{}
 	var err error
 	ic := installConfig.Config
-	for _, pool := range ic.Compute {
+	for i, pool := range ic.Compute {
 		if pool.Hyperthreading == types.HyperthreadingDisabled {
 			ignHT, err := machineconfig.ForHyperthreadingDisabled("worker")
 			if err != nil {
@@ -268,7 +268,7 @@ func (w *Worker) Generate(dependencies asset.Parents) error {
 			}
 
 			mpool := alibabacloudtypes.DefaultWorkerMachinePoolPlatform()
-			mpool.ImageID = string(*rhcosImage)
+			mpool.ImageID = string(*rhcosImage.ComputeImage[i])
 			mpool.Set(ic.Platform.AlibabaCloud.DefaultMachinePlatform)
 			mpool.Set(pool.Platform.AlibabaCloud)
 			if len(mpool.Zones) == 0 {
@@ -315,7 +315,7 @@ func (w *Worker) Generate(dependencies asset.Parents) error {
 
 			mpool := defaultAWSMachinePoolPlatform()
 
-			osImage := strings.SplitN(string(*rhcosImage), ",", 2)
+			osImage := strings.SplitN(string(*rhcosImage.ComputeImage[i]), ",", 2)
 			osImageID := osImage[0]
 			if len(osImage) == 2 {
 				osImageID = "" // the AMI will be generated later on
@@ -339,10 +339,10 @@ func (w *Worker) Generate(dependencies asset.Parents) error {
 				}
 			}
 			if mpool.InstanceType == "" {
-				mpool.InstanceType, err = aws.PreferredInstanceType(ctx, installConfig.AWS, awsDefaultMachineTypes(installConfig.Config.Platform.AWS.Region, installConfig.Config.ControlPlane.Architecture), mpool.Zones)
+				mpool.InstanceType, err = aws.PreferredInstanceType(ctx, installConfig.AWS, awsDefaultMachineTypes(installConfig.Config.Platform.AWS.Region, installConfig.Config.Compute[i].Architecture), mpool.Zones)
 				if err != nil {
 					logrus.Warn(errors.Wrap(err, "failed to find default instance type"))
-					mpool.InstanceType = awsDefaultMachineTypes(installConfig.Config.Platform.AWS.Region, installConfig.Config.ControlPlane.Architecture)[0]
+					mpool.InstanceType = awsDefaultMachineTypes(installConfig.Config.Platform.AWS.Region, installConfig.Config.Compute[i].Architecture)[0]
 				}
 			}
 			// if the list of zones is the default we need to try to filter the list in case there are some zones where the instance might not be available
@@ -409,7 +409,7 @@ func (w *Worker) Generate(dependencies asset.Parents) error {
 				return err
 			}
 
-			sets, err := azure.MachineSets(clusterID.InfraID, ic, &pool, string(*rhcosImage), "worker", workerUserDataSecretName, capabilities)
+			sets, err := azure.MachineSets(clusterID.InfraID, ic, &pool, string(*rhcosImage.ComputeImage[i]), "worker", workerUserDataSecretName, capabilities)
 			if err != nil {
 				return errors.Wrap(err, "failed to create worker machine objects")
 			}
@@ -444,7 +444,7 @@ func (w *Worker) Generate(dependencies asset.Parents) error {
 				mpool.Zones = azs
 			}
 			pool.Platform.GCP = &mpool
-			sets, err := gcp.MachineSets(clusterID.InfraID, ic, &pool, string(*rhcosImage), "worker", workerUserDataSecretName)
+			sets, err := gcp.MachineSets(clusterID.InfraID, ic, &pool, string(*rhcosImage.ComputeImage[i]), "worker", workerUserDataSecretName)
 			if err != nil {
 				return errors.Wrap(err, "failed to create worker machine objects")
 			}
@@ -488,7 +488,7 @@ func (w *Worker) Generate(dependencies asset.Parents) error {
 			mpool.Set(pool.Platform.OpenStack)
 			pool.Platform.OpenStack = &mpool
 
-			imageName, _ := rhcosutils.GenerateOpenStackImageName(string(*rhcosImage), clusterID.InfraID)
+			imageName, _ := rhcosutils.GenerateOpenStackImageName(string(*rhcosImage.ComputeImage[i]), clusterID.InfraID)
 
 			sets, err := openstack.MachineSets(clusterID.InfraID, ic, &pool, imageName, "worker", workerUserDataSecretName, nil)
 			if err != nil {
@@ -517,7 +517,7 @@ func (w *Worker) Generate(dependencies asset.Parents) error {
 			mpool.Set(pool.Platform.Ovirt)
 			pool.Platform.Ovirt = &mpool
 
-			imageName, _ := rhcosutils.GenerateOpenStackImageName(string(*rhcosImage), clusterID.InfraID)
+			imageName, _ := rhcosutils.GenerateOpenStackImageName(string(*rhcosImage.ComputeImage[i]), clusterID.InfraID)
 
 			sets, err := ovirt.MachineSets(clusterID.InfraID, ic, &pool, imageName, "worker", workerUserDataSecretName)
 			if err != nil {

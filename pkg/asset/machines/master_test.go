@@ -158,7 +158,10 @@ spec:
 						},
 					},
 				},
-				(*rhcos.Image)(pointer.StringPtr("test-image")),
+				&rhcos.Image{
+					ControlPlaneImage: (pointer.StringPtr("test-image")),
+					ComputeImage:      []*string{pointer.StringPtr("test-image")},
+				},
 				&machine.Master{
 					File: &asset.File{
 						Filename: "master-ignition",
@@ -217,7 +220,10 @@ func TestControlPlaneIsNotModified(t *testing.T) {
 			InfraID: "test-infra-id",
 		},
 		&installConfig,
-		(*rhcos.Image)(pointer.StringPtr("test-image")),
+		&rhcos.Image{
+			ControlPlaneImage: (pointer.StringPtr("test-image")),
+			ComputeImage:      []*string{pointer.StringPtr("test-image")},
+		},
 		&machine.Master{
 			File: &asset.File{
 				Filename: "master-ignition",
@@ -286,7 +292,10 @@ func TestBaremetalGeneratedAssetFiles(t *testing.T) {
 			InfraID: "test-infra-id",
 		},
 		&installConfig,
-		(*rhcos.Image)(pointer.StringPtr("test-image")),
+		&rhcos.Image{
+			ControlPlaneImage: (pointer.StringPtr("test-image")),
+			ComputeImage:      []*string{pointer.StringPtr("test-image")},
+		},
 		&machine.Master{
 			File: &asset.File{
 				Filename: "master-ignition",

@@ -154,7 +154,11 @@ spec:
 						},
 					},
 				},
-				(*rhcos.Image)(pointer.StringPtr("test-image")),
+
+				&rhcos.Image{
+					ControlPlaneImage: (pointer.StringPtr("test-image")),
+					ComputeImage:      []*string{pointer.StringPtr("test-image")},
+				},
 				&machine.Worker{
 					File: &asset.File{
 						Filename: "worker-ignition",
@@ -216,7 +220,10 @@ func TestComputeIsNotModified(t *testing.T) {
 			InfraID: "test-infra-id",
 		},
 		&installConfig,
-		(*rhcos.Image)(pointer.StringPtr("test-image")),
+		&rhcos.Image{
+			ControlPlaneImage: (pointer.StringPtr("test-image")),
+			ComputeImage:      []*string{pointer.StringPtr("test-image")},
+		},
 		&machine.Worker{
 			File: &asset.File{
 				Filename: "worker-ignition",

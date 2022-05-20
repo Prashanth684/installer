@@ -244,7 +244,7 @@ func (o *Openshift) Generate(dependencies asset.Parents) error {
 	case baremetaltypes.Name:
 		bmTemplateData := baremetalTemplateData{
 			Baremetal:                 installConfig.Config.Platform.BareMetal,
-			ProvisioningOSDownloadURL: string(*rhcosImage),
+			ProvisioningOSDownloadURL: string(*rhcosImage.ControlPlaneImage),
 		}
 		assetData["99_baremetal-provisioning-config.yaml"] = applyTemplateData(baremetalConfig.Files()[0].Data, bmTemplateData)
 	}
