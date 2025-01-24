@@ -2,6 +2,17 @@
   "$schema" : "https://schema.management.azure.com/schemas/2015-01-01/deploymentTemplate.json#",
   "contentVersion" : "1.0.0.0",
   "parameters" : {
+    "architecture": {
+      "type": "string",
+      "metadata": {
+        "description": "The architecture of the Virtual Machines"
+      },
+      "defaultValue": "x64",
+      "allowedValues": [
+        "Arm64",
+        "x64"
+      ]
+    },
     "baseName" : {
       "type" : "string",
       "minLength" : 1,
@@ -62,7 +73,8 @@
     "vmName" : "[concat(parameters('baseName'), '-bootstrap')]",
     "nicName" : "[concat(variables('vmName'), '-nic')]",
     "galleryName": "[concat('gallery_', replace(parameters('baseName'), '-', '_'))]",
-    "imageName" : "[concat(parameters('baseName'), if(equals(parameters('hyperVGen'), 'V2'), '-gen2', ''))]",
+    "imageNameWithArch": "[concat(parameters('baseName'), if(not(equals(parameters('architecture'), 'x64')), concat('-', parameters('architecture')), ''))]",
+    "imageName" : "[concat(variables('imageNameWithArch'), if(equals(parameters('hyperVGen'), 'V2'), '-gen2', ''))]",
     "clusterNsgName" : "[concat(if(not(empty(parameters('vnetBaseName'))), parameters('vnetBaseName'), parameters('baseName')), '-nsg')]",
     "sshPublicIpAddressName" : "[concat(variables('vmName'), '-ssh-pip')]"
   },

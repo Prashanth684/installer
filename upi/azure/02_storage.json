@@ -36,8 +36,8 @@
   "variables": {
     "location": "[resourceGroup().location]",
     "galleryName": "[concat('gallery_', replace(parameters('baseName'), '-', '_'))]",
-    "imageName": "[parameters('baseName')]",
-    "imageNameGen2": "[concat(parameters('baseName'), '-gen2')]",
+    "imageName": "[concat(parameters('baseName'), if(not(equals(parameters('architecture'), 'x64')), concat('-', parameters('architecture')), ''))]",
+    "imageNameGen2": "[concat(variables('imageName'), '-gen2')]",
     "imageRelease": "1.0.0"
   },
   "resources": [
@@ -59,8 +59,8 @@
             "architecture": "[parameters('architecture')]",
             "hyperVGeneration": "V1",
             "identifier": {
-              "offer": "rhcos",
-              "publisher": "RedHat",
+              "offer": "[concat('rhcos', if(not(equals(parameters('architecture'), 'x64')), concat('-', parameters('architecture')), ''))]",
+              "publisher": "[concat('RedHat', if(not(equals(parameters('architecture'), 'x64')), concat('-', parameters('architecture')), ''))]",
               "sku": "basic"
             },
             "osState": "Generalized",
@@ -109,8 +109,8 @@
             "architecture": "[parameters('architecture')]",
             "hyperVGeneration": "V2",
             "identifier": {
-              "offer": "rhcos-gen2",
-              "publisher": "RedHat-gen2",
+              "offer": "[concat('rhcos', if(not(equals(parameters('architecture'), 'x64')), concat('-', parameters('architecture'), '-gen2'), ''))]",
+              "publisher": "[concat('RedHat', if(not(equals(parameters('architecture'), 'x64')), concat('-', parameters('architecture'), '-gen2'), ''))]",
               "sku": "gen2"
             },
             "osState": "Generalized",

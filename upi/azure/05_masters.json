@@ -2,6 +2,17 @@
   "$schema" : "https://schema.management.azure.com/schemas/2015-01-01/deploymentTemplate.json#",
   "contentVersion" : "1.0.0.0",
   "parameters" : {
+    "architecture": {
+      "type": "string",
+      "metadata": {
+        "description": "The architecture of the Virtual Machines"
+      },
+      "defaultValue": "x64",
+      "allowedValues": [
+        "Arm64",
+        "x64"
+      ]
+    },
     "baseName" : {
       "type" : "string",
       "minLength" : 1,
@@ -82,7 +93,8 @@
     "sshKeyPath" : "/home/core/.ssh/authorized_keys",
     "identityName" : "[concat(parameters('baseName'), '-identity')]",
     "galleryName": "[concat('gallery_', replace(parameters('baseName'), '-', '_'))]",
-    "imageName" : "[concat(parameters('baseName'), if(equals(parameters('hyperVGen'), 'V2'), '-gen2', ''))]",
+    "imageNameWithArch": "[concat(parameters('baseName'), if(not(equals(parameters('architecture'), 'x64')), concat('-', parameters('architecture')), ''))]",
+    "imageName" : "[concat(variables('imageNameWithArch'), if(equals(parameters('hyperVGen'), 'V2'), '-gen2', ''))]",
     "copy" : [
       {
         "name" : "vmNames",
