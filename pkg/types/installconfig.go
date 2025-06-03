@@ -213,7 +213,7 @@ type InstallConfig struct {
 	Capabilities *Capabilities `json:"capabilities,omitempty"`
 
 	// FeatureSet enables features that are not part of the default feature set.
-	// Valid values are "Default", "TechPreviewNoUpgrade" and "CustomNoUpgrade".
+	// Valid values are "Default", "TechPreviewNoUpgrade", "OKD", and "CustomNoUpgrade".
 	// When omitted, the "Default" feature set is used.
 	// +optional
 	FeatureSet configv1.FeatureSet `json:"featureSet,omitempty"`

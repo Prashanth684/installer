@@ -67,6 +67,11 @@ func (m *Metadata) Generate(_ context.Context, parents asset.Parents) (err error
 	parents.Get(clusterID, installConfig)
 
 	featureSet := installConfig.Config.FeatureSet
+	// if the cluster is OKD and no featuresets have been configured, set the default to OKD
+	if installConfig.Config.IsSCOS() && (len(featureSet) <= 0) {
+		featureSet = configv1.OKD
+	}
+
 	var customFS *configv1.CustomFeatureGates
 	if featureSet == configv1.CustomNoUpgrade {
 		customFS = featuregates.GenerateCustomFeatures(installConfig.Config.FeatureGates)

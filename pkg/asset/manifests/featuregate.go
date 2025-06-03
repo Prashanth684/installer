@@ -42,6 +42,12 @@ func (f *FeatureGate) Generate(_ context.Context, dependencies asset.Parents) er
 	installConfig := &installconfig.InstallConfig{}
 	dependencies.Get(installConfig)
 
+	// if the cluster is OKD and no featuresets have been configured, set the default to OKD
+	featureSet := installConfig.Config.FeatureSet
+	if installConfig.Config.IsSCOS() && (len(featureSet) <= 0) {
+		featureSet = configv1.OKD
+	}
+
 	f.Config = configv1.FeatureGate{
 		TypeMeta: metav1.TypeMeta{
 			APIVersion: configv1.SchemeGroupVersion.String(),
@@ -52,13 +58,13 @@ func (f *FeatureGate) Generate(_ context.Context, dependencies asset.Parents) er
 		},
 		Spec: configv1.FeatureGateSpec{
 			FeatureGateSelection: configv1.FeatureGateSelection{
-				FeatureSet: installConfig.Config.FeatureSet,
+				FeatureSet: featureSet,
 			},
 		},
 	}
 
 	if len(installConfig.Config.FeatureGates) > 0 {
-		if installConfig.Config.FeatureSet != configv1.CustomNoUpgrade {
+		if featureSet != configv1.CustomNoUpgrade {
 			return errors.Errorf("custom features can only be used with the CustomNoUpgrade feature set")
 		}
 

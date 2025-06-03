@@ -372,6 +372,12 @@ func (a *Common) getTemplateData(dependencies asset.Parents, bootstrapInPlace bo
 
 	openshiftInstallInvoker := os.Getenv("OPENSHIFT_INSTALL_INVOKER")
 
+        // if the cluster is OKD and no featuresets have been configured, set the default to OKD
+        featureSet := installConfig.Config.FeatureSet
+        if installConfig.Config.IsSCOS() && (len(featureSet) <= 0) {
+               featureSet = configv1.OKD
+        }
+
 	return &bootstrapTemplateData{
 		AdditionalTrustBundle: installConfig.Config.AdditionalTrustBundle,
 		FIPS:                  installConfig.Config.FIPS,
@@ -393,7 +399,7 @@ func (a *Common) getTemplateData(dependencies asset.Parents, bootstrapInPlace bo
 		BootstrapNodeIP:       bootstrapNodeIP,
 		APIServerURL:          apiURL,
 		APIIntServerURL:       apiIntURL,
-		FeatureSet:            installConfig.Config.FeatureSet,
+		FeatureSet:            featureSet,
 		Invoker:               openshiftInstallInvoker,
 		ClusterDomain:         installConfig.Config.ClusterDomain(),
 	}
