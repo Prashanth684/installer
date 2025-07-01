@@ -374,9 +374,9 @@ func (a *Common) getTemplateData(dependencies asset.Parents, bootstrapInPlace bo
 
         // if the cluster is OKD and no featuresets have been configured, set the default to OKD
         featureSet := installConfig.Config.FeatureSet
-        if installConfig.Config.IsSCOS() && (len(featureSet) <= 0) {
-               featureSet = configv1.OKD
-        }
+        //if installConfig.Config.IsSCOS() && (len(featureSet) <= 0) {
+        //       featureSet = configv1.OKD
+        //}
 
 	return &bootstrapTemplateData{
 		AdditionalTrustBundle: installConfig.Config.AdditionalTrustBundle,

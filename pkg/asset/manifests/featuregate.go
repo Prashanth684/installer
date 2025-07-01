@@ -44,9 +44,9 @@ func (f *FeatureGate) Generate(_ context.Context, dependencies asset.Parents) er
 
 	// if the cluster is OKD and no featuresets have been configured, set the default to OKD
 	featureSet := installConfig.Config.FeatureSet
-	if installConfig.Config.IsSCOS() && (len(featureSet) <= 0) {
-		featureSet = configv1.OKD
-	}
+	//if installConfig.Config.IsSCOS() && (len(featureSet) <= 0) {
+	//	featureSet = configv1.OKD
+	//}
 
 	f.Config = configv1.FeatureGate{
 		TypeMeta: metav1.TypeMeta{
